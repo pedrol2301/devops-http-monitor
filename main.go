@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/csv"
 	"fmt"
 	"net/http"
 	"os"
@@ -22,18 +23,39 @@ func main() {
 	}
 	defer f.Close()
 
-	f.Read([]byte(""))
-
-	now := time.Now()
-	url := os.Args[1]
-
-	get, err := http.Get(url)
+	csvReader := csv.NewReader(f)
+	records, err := csvReader.ReadAll()
 	if err != nil {
 		fmt.Println(err.Error())
 		panic(err)
 	}
-	decorrido := time.Since(now).Seconds()
-	status := get.Status
-	fmt.Printf("Status: %s Tempo decorrido: %f segundos", status, decorrido)
 
+	var servers []Server
+	for c, record := range records {
+		if c > 0 {
+			server := Server{
+				Server:    record[0],
+				ServerUrl: record[1],
+			}
+			servers = append(servers, server)
+		}
+	}
+
+	for {
+		for _, server := range servers {
+			now := time.Now()
+
+			get, err := http.Get(server.ServerUrl)
+			if err != nil {
+				fmt.Println(err.Error())
+				panic(err)
+			}
+			decorrido := time.Since(now).Seconds()
+			status := get.Status
+			fmt.Printf("%s Status: %s Tempo decorrido: %f segundos\n", server.Server, status, decorrido)
+		}
+
+		fmt.Println("--------------------------------------------")
+		time.Sleep(5 * time.Second)
+	}
 }
