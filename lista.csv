@@ -2,3 +2,5 @@ server,url
 "Google","http://www.google.com"
 Microsoft,http://www.microsoft.com
 "Go",http://go.dev
+"Fail",http://go.devospssre.com
+"Server404",http://go.dev/devops
